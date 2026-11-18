@@ -323,9 +323,9 @@ function buildClock() {
   s += `<g id="minHand" filter="url(#handShadow)"><rect x="-5.5" y="-170" width="11" height="192" rx="5.5" fill="#1c7ed6"/></g>`;
   // Hour hand (short, red) with a big round knob to grab
   s += `<g id="hourHand" filter="url(#handShadow)">
-      <rect x="-11" y="-104" width="22" height="126" rx="11" fill="#e03131"/>
-      <circle cy="-96" r="22" fill="#e03131" class="knobpulse"/>
-      <circle cy="-96" r="19" fill="#ff6b6b" stroke="#fff" stroke-width="4"/>
+      <path d="M-10 12 V-84 L0 -112 L10 -84 V12 A10 10 0 0 1 -10 12 Z" fill="#e03131" stroke="#e03131" stroke-width="2" stroke-linejoin="round"/>
+      <circle cy="-58" r="22" fill="#e03131" class="knobpulse"/>
+      <circle cy="-58" r="19" fill="#ff6b6b" stroke="#fff" stroke-width="4"/>
     </g>`;
   s += '<circle r="15" fill="#1f2a44"/><circle r="5" fill="#fff"/>';
   $('clock').innerHTML = s;
