@@ -77,21 +77,23 @@
 
   #announce {
     position: absolute; left: 50%; top: 50%; pointer-events: none;
-    font-size: clamp(30px, 6.5vw, 64px); font-weight: 700; color: #fff;
-    background: #3b5bdb; padding: 10px 26px; border-radius: 24px; white-space: nowrap;
+    font-size: clamp(24px, 4.4vw, 42px); font-weight: 700; color: #fff;
+    background: #3b5bdb; padding: 4px 24px; border-radius: 24px; white-space: nowrap;
     opacity: 0; transform: translate(-50%, -50%) scale(.6);
-    box-shadow: 0 6px 0 rgba(0,0,0,.15);
+    box-shadow: 0 4px 0 rgba(0,0,0,.15);
   }
+  #capText { transition: opacity .2s; }
+  #caption.announcing #capText { opacity: 0; }
   #announce.show { animation: pop 1.9s ease-out forwards; }
   @keyframes pop {
     0% { opacity: 0; transform: translate(-50%, -50%) scale(.6); }
     12% { opacity: 1; transform: translate(-50%, -50%) scale(1.08); }
     20% { transform: translate(-50%, -50%) scale(1); }
     80% { opacity: 1; }
-    100% { opacity: 0; transform: translate(-50%, -70%) scale(1); }
+    100% { opacity: 0; transform: translate(-50%, -50%) scale(.9); }
   }
 
-  #caption { grid-area: cap; text-align: center; font-size: clamp(22px, 4vw, 38px); font-weight: 600; min-height: 1.3em; line-height: 1.3; }
+  #caption { grid-area: cap; position: relative; text-align: center; font-size: clamp(22px, 4vw, 38px); font-weight: 600; min-height: 1.3em; line-height: 1.3; }
   #sceneWrap { grid-area: scene; border-radius: 22px; overflow: hidden; box-shadow: 0 4px 0 rgba(0,0,0,.1); }
   #scene { display: block; width: 100%; height: auto; }
 
@@ -151,10 +153,9 @@
   <div id="clockWrap">
     <svg id="clock" viewBox="-212 -212 424 424" role="img" aria-label="Clock. Drag the little red hand to change the time."></svg>
     <div id="hint">👆 Turn the little red hand!</div>
-    <div id="announce"></div>
   </div>
 
-  <div id="caption" aria-live="polite"></div>
+  <div id="caption"><span id="capText" aria-live="polite"></span><div id="announce"></div></div>
 
   <div id="sceneWrap">
     <svg id="scene" viewBox="0 55 760 500" role="img" aria-label="A picture of the day"></svg>
@@ -936,7 +937,7 @@ const CAM_MAX = 340;
 
 const el = {};
 function cacheEls() {
-  ['minHand', 'hourHand', 'sunIcon', 'moonIcon', 'digTime', 'digWords', 'dig24', 'caption', 'sky0', 'sky1', 'stars', 'sun', 'moon', 'clouds',
+  ['minHand', 'hourHand', 'sunIcon', 'moonIcon', 'digTime', 'digWords', 'dig24', 'caption', 'capText', 'sky0', 'sky1', 'stars', 'sun', 'moon', 'clouds',
    'night', 'ovBed', 'ovBath', 'ovStair', 'ovDine', 'glowLamp', 'glowNight', 'glowDine', 'glowStreet', 'lampBulb', 'gateL', 'gateR', 'frontDoor',
    'wardL', 'wardR', 'toys', 'bathWater', 'towel', 'hookBag', 'schoolBoy', 'boy', 'scene', 'boyInner', 'gardenNight', 'announce', 'hint'].forEach(id => el[id] = $(id));
 }
@@ -1018,7 +1019,7 @@ function render() {
   const b = boyState(t);
   let activity = b.activity;
   if (activity === 'sleep' && t >= hm(20, 30) && t < hm(20, 50)) activity = 'lightsOut';
-  el.caption.textContent = CAPTIONS[activity] || '';
+  el.capText.textContent = CAPTIONS[activity] || '';
   drawBoy(b);
 
   // the camera follows him between home and school
@@ -1059,6 +1060,7 @@ function drawBoy(b) {
 /* ------------------------------------------------------------------
    Turning the hands, and saying the time on the hour
 ------------------------------------------------------------------- */
+let announceTimer = 0;
 function announce(h24) {
   const text = oclockPhrase(h24);
   speak(text, true);
@@ -1067,6 +1069,9 @@ function announce(h24) {
   el.announce.classList.remove('show');
   void el.announce.offsetWidth;
   el.announce.classList.add('show');
+  el.caption.classList.add('announcing');
+  clearTimeout(announceTimer);
+  announceTimer = setTimeout(() => el.caption.classList.remove('announcing'), 1750);
 }
 
 function setMinutes(next, quiet) {
